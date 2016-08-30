@@ -16,17 +16,41 @@
         </div>
         <h1>{{ category.name }}</h1>
     </div>
-    <table class="jobs">
-        {% for entity in category.activejobs %}
-            <tr class="{{ cycle(['even', 'odd'], loop.index) }}">
-                <td class="location">{{ entity.location }}</td>
-                <td class="position">
-                    <a href="{{ path('app_job_show', { 'id': entity.id, 'company': entity.companyslug, 'location': entity.locationslug, 'position': entity.positionslug }) }}">
-                        {{ entity.position }}
-                    </a>
-                </td>
-                <td class="company">{{ entity.company }}</td>
-            </tr>
-        {% endfor %}
-    </table>
+
+    {{ include ('AppJoboardBundle:Job:list.html.twig', {'jobs': category.activejobs}) }}
+
+    {% if lastPage > 1 %}
+        <div class="pagination">
+            <a href="{{ path('AppJoboardBundle_category', {'slug': category, 'page': 1}) }}">
+                В начало
+            </a>
+
+            <a href="{{ path('AppJoboardBundle_category', {'slug': category, 'page': previousPage }) }}">
+                &lt;&lt;
+            </a>
+
+            {% for page in 1..lastPage %}
+                {% if page == currentPage %}
+                    {{ page }}
+                {% else %}
+                    <a href="{{ path('AppJoboardBundle_category', {'slug': category, 'page': page}) }}">{{ page }}</a>
+                {% endif %}
+            {% endfor %}
+
+            <a href="{{ path('AppJoboardBundle_category', {'slug': category, 'page': nextPage}) }}">
+                &gt;&gt;
+            </a>
+
+            <a href="{{ path('AppJoboardBundle_category', {'slug': category, 'page': lastPage}) }}">
+                В конец
+            </a>
+        </div>
+    {% endif %}
+
+    <div class="pagination_desc">
+        <strong>{{ totalJobs }}</strong> вакансии в категории
+        {% if lastPage > 1 %}
+            - страница <strong>{{ currentPage }}/{{ lastPage }}</strong>
+        {% endif %}
+    </div>
 {% endblock %}

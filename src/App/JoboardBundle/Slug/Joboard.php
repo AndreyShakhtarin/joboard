@@ -5,10 +5,10 @@ namespace App\JoboardBundle\Slug;
 
 class Joboard
 {
-    static public function slugify($text)
+    public static function slugify($text)
     {
 
-        //$text = transliterator_transliterate("Any-Latin; NFD; [:Nonspacing Mark:] Remove; NFC; [:Punctuation:] Remove; Lower();", $text);
+        $text = transliterator_transliterate("Any-Latin; NFD; [:Nonspacing Mark:] Remove; NFC; [:Punctuation:] Remove; Lower();", $text);
         // replace all non letters or digits by -
         $text = preg_replace('/\W+/', '-', $text);
 

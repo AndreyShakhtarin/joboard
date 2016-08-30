@@ -7,5 +7,5 @@ app_joboard_homepage:
     defaults: { _controller: AppJoboardBundle:Default:index }
 
 AppJoboardBundle_category:
-  path: /category/{slug}
-  defaults: { _controller: AppJoboardBundle:Category:show }
+  path: /category/{slug}/{page}
+  defaults: { _controller: AppJoboardBundle:Category:show, page:1 }
