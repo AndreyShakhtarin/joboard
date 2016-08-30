@@ -1,0 +1,32 @@
+{% extends '::base.html.twig' %}
+
+{% block title %}
+    Вакансий в категории {{ category.name }}
+{% endblock %}
+
+{% block stylesheets %}
+    {{ parent() }}
+    <link rel="stylesheet" href="{{ asset('bundles/appjoboard/css/jobs.css') }}" type="text/css" media="all" />
+{% endblock %}
+
+{% block content %}
+    <div class="one-category">
+        <div class="feed">
+            <a href="">Feed</a>
+        </div>
+        <h1>{{ category.name }}</h1>
+    </div>
+    <table class="jobs">
+        {% for entity in category.activejobs %}
+            <tr class="{{ cycle(['even', 'odd'], loop.index) }}">
+                <td class="location">{{ entity.location }}</td>
+                <td class="position">
+                    <a href="{{ path('app_job_show', { 'id': entity.id, 'company': entity.companyslug, 'location': entity.locationslug, 'position': entity.positionslug }) }}">
+                        {{ entity.position }}
+                    </a>
+                </td>
+                <td class="company">{{ entity.company }}</td>
+            </tr>
+        {% endfor %}
+    </table>
+{% endblock %}

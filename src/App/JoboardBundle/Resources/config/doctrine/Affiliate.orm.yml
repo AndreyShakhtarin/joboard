@@ -1,0 +1,38 @@
+App\JoboardBundle\Entity\Affiliate:
+    type: entity
+    repositoryClass: App\JoboardBundle\Repository\AffiliateRepository
+    table: affiliate
+    id:
+        id:
+            type: integer
+            generator: { strategy: AUTO }
+    fields:
+        url:
+            type: string
+            length: 255
+        email:
+            type: string
+            length: 255
+            unique: true
+        token:
+            type: string
+            length: 255
+        is_active:
+            type: boolean
+            nullable: true
+        created_at:
+            type: datetime
+    manyToMany:
+        categories:
+            targetEntity: Category
+            inversedBy: affiliates
+            joinTable:
+                name: category_affiliate
+                joinColumns:
+                    affiliate_id:
+                        referencedColumnName: id
+                inverseJoinColumns:
+                    category_id:
+                        referencedColumnName: id
+    lifecycleCallbacks:
+        prePersist: [setCreatedAtValue]

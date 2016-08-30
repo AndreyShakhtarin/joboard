@@ -1,0 +1,24 @@
+{% extends 'base.html.twig' %}
+{% block stylesheets %}
+    <link rel="stylesheet" href="{{ asset('bootstrap/css/bootstrap.min.css') }}" type="text/css" media="all">
+    <link rel="stylesheet" href="{{ asset('bundles/appjoboard/css/main.css') }}" type="text/css" media="all">
+{% endblock %}
+{% block content %}
+    <h1>Job creation</h1>
+    <div class="container">
+    {{ form_start(form) }}
+
+        <div class="container" style="align-content: center">
+            <div>
+                {{ form_widget(form) }}
+            </div>
+        </div>
+        <input type="submit" value="Create" />
+    {{ form_end(form) }}
+    </div>
+    <ul>
+        <li>
+            <a href="{{ path('app_job_index') }}">Back to the list</a>
+        </li>
+    </ul>
+{% endblock %}

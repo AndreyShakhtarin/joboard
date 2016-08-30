@@ -1,0 +1,4 @@
+services:
+#    app_joboard.example:
+#        class: App\JoboardBundle\Example
+#        arguments: [@service_id, "plain_value", %parameter%]

@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="UTF-8" />
+        <meta charset="UTF-8">
+        <title>{% block title %}Joboard{% endblock %}</title>
+        {% block stylesheets %}
+            <link rel="stylesheet" href="{{ asset('bootstrap/css/bootstrap.min.css') }}" type="text/css" media="all">
+            <link rel="stylesheet" href="{{ asset('bundles/appjoboard/css/main.css') }}" type="text/css" media="all">
+        {% endblock %}
+        <link rel="icon" type="image/x-icon" href="{{ asset('favicon.ico') }}" />
+    </head>
+    <body>
+    <div id="header" class="container">
+        <div class="row">
+            <div class="col-lg-6">
+                <div class="row">
+                    <div class="col-lg-4">
+                        <h2 id="logo">Joboard</h2>
+                    </div>
+                    <div class="col-lg-6">
+                        <input type="text" class="form-control" placeholder="Поиск по вакансиям">
+                    </div>
+                    <div class="col-lg-2">
+                        <button class="btn btn-default">Искать</button>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-6 text-right">
+                <a href="{{ path('app_job_new') }}" class="btn btn-success">Добавить вакансию</a>
+            </div>
+        </div>
+    </div>
+
+    <div class="container">
+        {% block content %}
+        {% endblock %}
+    </div>
+
+    <div id="footer" class="container">
+        <a href="">О проекте</a>
+        <a href="">RSS</a>
+        <a href="">API</a>
+        <a href="">Партнёрам</a>
+    </div>
+
+    {% block javascripts %}
+        <script src="{{ asset('bootstrap/js/bootstrap.min.js') }}"></script>
+    {% endblock %}
+    </body>
+</html>

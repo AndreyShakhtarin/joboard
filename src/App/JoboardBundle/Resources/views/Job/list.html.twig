@@ -1,0 +1,13 @@
+<table class="jobs">
+    {% for entity in category.activejobs %}
+        <tr class="{{ cycle(['even', 'odd'], loop.index) }}">
+            <td class="location">{{ entity.location }}</td>
+            <td class="position">
+                <a href="{{ path('app_job_show', { 'id': entity.id, 'company': entity.company, 'location': entity.location, 'position': entity.position }) }}">
+                    {{ entity.position }}
+                </a>
+            </td>
+            <td class="company">{{ entity.company }}</td>
+        </tr>
+    {% endfor %}
+</table>

@@ -1,0 +1,25 @@
+{% extends "::base.html.twig" %}
+
+{% block content %}
+
+    <div id="jobs">
+        {% for category in categories %}
+            <div>
+                <div class="category">
+                    <div class="feed">
+                        <a href="">Feed</a>
+                    </div>
+
+                    <h1><a href="{{ path('AppJoboardBundle_category', {'slug': category}) }}">{{ category.name }}</a></h1>
+                </div>
+                {{ include ('AppJoboardBundle:Job:list.html.twig', {'job': category.activejobs}) }}
+                {% if category.morejobs %}
+                    <div class="more-jobs text-right">
+                        и <a href="{{ path('AppJoboardBundle_category', {'slug': category}) }}">{{ category.morejobs }}</a>
+                        ещё вакансии...
+                    </div>
+                {% endif %}
+            </div>
+        {% endfor %}
+    </div>
+{% endblock %}

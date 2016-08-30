@@ -1,0 +1,23 @@
+{% extends 'base.html.twig' %}
+
+
+{% block content %}
+    <table class="records_list table table-bordered">
+        <thead>
+        <tr>
+            <th>Адрес</th>
+            <th>Вакансия</th>
+            <th>Компания</th>
+        </tr>
+        </thead>
+        <tbody>
+        {% for job in jobs %}
+            <tr class="{{ cycle(["even", "odd"], loop.index) }}">
+                <td>{{ job.location }}</td>
+                <td><a href="{{ path('app_job_show', { 'id': job.id }) }}">{{ job.position }}</a></td>
+                <td>{{ job.company }}</td>
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+{% endblock %}

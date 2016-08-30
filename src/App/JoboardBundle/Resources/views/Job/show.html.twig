@@ -1,0 +1,26 @@
+{% extends "::base.html.twig" %}
+
+{% block stylesheets %}
+    {{ parent() }}
+    <link rel="stylesheet" href="{{ asset('bundles/appjoboard/css/job.css') }}" type="text/css" media="all">
+{% endblock %}
+{% block content %}
+    <div class="row">
+        <div class="col-lg-9">
+            <h3>{{ entity.company }}</h3>
+            <h4>{{ entity.location }}</h4>
+            <hr>
+            <h4>{{ entity.position }} - {{ entity.type }}</h4>
+            <hr>
+            <div>
+                {{ entity.description }}
+            </div>
+        </div>
+        <div class="col-lg-3 text-right">
+            <img src="http://placehold.it/200x200">
+        </div>
+        <li>
+            <a href="{{ path('app_job_index') }}">Back to the list</a>
+        </li>
+    </div>
+{% endblock %}

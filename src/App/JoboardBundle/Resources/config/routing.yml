@@ -1,0 +1,11 @@
+app_joboard_app_job:
+    resource: "@AppJoboardBundle/Resources/config/routing/job.yml"
+    prefix:   /
+
+app_joboard_homepage:
+    path:     /hello{name}
+    defaults: { _controller: AppJoboardBundle:Default:index }
+
+AppJoboardBundle_category:
+  path: /category/{slug}
+  defaults: { _controller: AppJoboardBundle:Category:show }
