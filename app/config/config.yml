@@ -3,16 +3,18 @@ imports:
     - { resource: security.yml }
     - { resource: services.yml }
     - { resource: "@AppJoboardBundle/Resources/config/services.yml" }
-    
+    - { resource: "@AppJoboardBundle/Resources/config/parameter_joboard.yml" }
+    - { resource: "@AppJoboardBundle/Resources/config/parameter_mailer.yml" }
 
 # Put parameters here that don't need to change on each machine where the app is deployed
 # http://symfony.com/doc/current/best_practices/configuration.html#application-related-configuration
 parameters:
     locale: en
+    logo_directory: '%kernel.root_dir%/../../../web/uploads/jobs'
 
 framework:
     #esi:             ~
-    translator:  ~
+    translator:  { fallback: "%locale%"}
     secret:          "%secret%"
     router:
         resource: "%kernel.root_dir%/config/routing.yml"
@@ -64,8 +66,28 @@ doctrine:
 
 # Swiftmailer Configuration
 swiftmailer:
-    transport: "%mailer_transport%"
-    host:      "%mailer_host%"
-    username:  "%mailer_user%"
-    password:  "%mailer_password%"
-    spool:     { type: memory }
+    transport: smtp
+    username: "%mailer_user%"
+    password: "%mailer_password%"
+    host: "%mailer_host%"
+    port: "%mailer_port%"
+    encryption: "%mailer_encryption%"
+    auth_mode:  "%mailer_auth_mode%"
+
+
+
+parameters:
+    logo_directory: '%kernel.root_dir%/../web/uploads/jobs'
+
+sonata_admin:
+   title: Joboard Admin
+
+sonata_block:
+   default_contexts: [cms]
+   blocks:
+       sonata.admin.block.admin_list:
+           contexts:   [admin]
+
+       sonata.block.service.text:
+       sonata.block.service.action:
+       sonata.block.service.rss:

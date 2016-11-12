@@ -60,5 +60,8 @@ App\JoboardBundle\Entity\Job:
                 name: category_id
                 referencedColumnName: id
     lifecycleCallbacks:
-        prePersist: [ setCreatedAtValue, setExpiresAtValue ]
-        preUpdate: [ setUpdatedAtValue ]
+        prePersist: [ setTokenValue, setCreatedAtValue, setExpiresAtValue ]
+        preUpdate: [ preUpload, setUpdatedAtValue ]
+        postPersist: [ upload ]
+        postUpdate: [ upload ]
+        postRemove: [ removeUpload ]

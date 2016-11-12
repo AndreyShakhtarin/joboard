@@ -10,7 +10,7 @@ class Joboard
 
         $text = transliterator_transliterate("Any-Latin; NFD; [:Nonspacing Mark:] Remove; NFC; [:Punctuation:] Remove; Lower();", $text);
         // replace all non letters or digits by -
-        $text = preg_replace('/\W+/', '-', $text);
+        $text = preg_replace('/ +/', '-', $text);
 
         // trim and lowercase
         $text = strtolower(trim($text, '-'));

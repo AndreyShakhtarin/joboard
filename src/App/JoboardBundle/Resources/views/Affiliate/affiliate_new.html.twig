@@ -1,0 +1,59 @@
+{% extends 'base.html.twig' %}
+{% set form_themes = _self %}
+
+{% block form_errors %}
+    {% spaceless %}
+        {% if errors|length > 0 %}
+            <ul class="error_list">
+                {% for error in errors %}
+                    <li>{{ error.messageTemplate|trans(error.messageParameters, 'validators') }}</li>
+                {% endfor %}
+            </ul>
+        {% endif %}
+    {% endspaceless %}
+{% endblock form_errors %}
+
+{% block stylesheets %}
+    {{ parent() }}
+    <link rel="stylesheet" href="{{ asset('bundles/appjoboard/css/job.css') }}" type="text/css" media="all" />
+{% endblock %}
+
+{% block content %}
+    <h1>Стать партнёром</h1>
+    <form action="{{ path('app_affiliate_create') }}" method="post" >
+        <table id="affiliate-form">
+            <tfoot>
+            <tr>
+                <td colspan="2">
+                    <input type="submit" value="Submit" />
+                </td>
+            </tr>
+            </tfoot>
+            <tbody>
+            {{ form_row(form._token) }}
+            <tr>
+                <th>{{ form_label(form.url) }}</th>
+                <td>
+                    {{ form_widget(form.url) }}
+                    {{ form_errors(form.url) }}
+                </td>
+            </tr>
+            <tr>
+                <th>{{ form_label(form.email) }}</th>
+                <td>
+                    {{ form_widget(form.email) }}
+                    {{ form_errors(form.email) }}
+                </td>
+            </tr>
+            <tr>
+                <th>{{ form_label(form.categories) }}</th>
+                <td>
+                    {{ form_widget(form.categories) }}
+                    {{ form_errors(form.categories) }}
+                </td>
+            </tr>
+            </tbody>
+        </table>
+        {{ form_rest(form) }}
+    </form>
+{% endblock %}

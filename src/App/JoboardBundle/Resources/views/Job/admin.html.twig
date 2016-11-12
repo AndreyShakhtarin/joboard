@@ -1,0 +1,32 @@
+<div id="job-actions" class="well">
+    <h3>Администрирование</h3>
+    <ul>
+        {% if not job.isActivated %}
+            <li><a href="{{ path('app_job_edit', { 'token': job.token }) }}">Редактировать</a></li>
+            <li><a href="{{ path('app_job_edit', { 'token': job.token }) }}">Опубликовать</a></li>
+        {% endif %}
+        <li>
+            <form action="{{ path('app_job_delete', { 'token': job.token }) }}" method="post">
+                {{ form_widget(delete_form) }}
+                <button type="submit" onclick="if(!confirm('Удалить вакансию?')) { return false; }" class="btn btn-danger">Удалить</button>
+            </form>
+        </li>
+        {% if job.isActivated %}
+            <li {% if job.expiresSoon %} class="expires_soon" {% endif %}>
+                {% if job.isExpired %}
+                    Завершённая
+                {% else %}
+                    Завершится через <strong>{{ job.getDaysBeforeExpires }}</strong> дней
+                {% endif %}
+
+                {% if job.expiresSoon %}
+                    - <a href="">Продлить</a> ещё на 30 дней
+                {% endif %}
+            </li>
+        {% else %}
+            <li>
+                [Запомните <a href="{{ url('app_job_preview', { 'token': job.token, 'company': job.companyslug, 'location': job.locationslug, 'position': job.positionslug }) }}">ссылку</a>, чтобы редактировать эту вакансию в будущем.]
+            </li>
+        {% endif %}
+    </ul>
+</div>

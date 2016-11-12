@@ -5,6 +5,11 @@
     <link rel="stylesheet" href="{{ asset('bundles/appjoboard/css/job.css') }}" type="text/css" media="all">
 {% endblock %}
 {% block content %}
+    <div class="admin-panel">
+        {% if app.request.get('token')  %}
+            {% include 'AppJoboardBundle:Job:admin.html.twig' with {'job': entity} %}
+        {% endif %}
+    </div>
     <div class="row">
         <div class="col-lg-9">
             <h3>{{ entity.company }}</h3>
@@ -20,7 +25,7 @@
             <img src="http://placehold.it/200x200">
         </div>
         <li>
-            <a href="{{ path('app_job_index') }}">Back to the list</a>
+            <a href="{{ path('app_job_index', {'_format': 'html'}) }}">Back to the list</a>
         </li>
     </div>
 {% endblock %}

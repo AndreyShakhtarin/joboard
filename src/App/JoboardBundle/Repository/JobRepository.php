@@ -11,7 +11,7 @@ namespace App\JoboardBundle\Repository;
  */
 class JobRepository extends \Doctrine\ORM\EntityRepository
 {
-    public function getActiveJobs($categoryId = null, $max = null, $offset = null)
+    public function getActiveJobs($categoryId = null, $max = null, $offset = null, $affiliateId = null)
     {
         $qb = $this->createQueryBuilder('j')
             ->where('j.expires_at > :date')
@@ -29,6 +29,14 @@ class JobRepository extends \Doctrine\ORM\EntityRepository
         if($categoryId) {
             $qb->andWhere('j.category = :category_id')
                 ->setParameter('category_id', $categoryId);
+        }
+
+        if ($affiliateId) {
+            $qb->leftJoin('j.category', 'c')
+                ->leftJoin('c.affiliates', 'a')
+                ->andWhere('a.id = :affiliate_id')
+                ->setParameter('affiliate_id', $affiliateId)
+            ;
         }
 
         $query = $qb->getQuery();
@@ -71,5 +79,29 @@ class JobRepository extends \Doctrine\ORM\EntityRepository
         $query = $qb->getQuery();
 
         return $query->getSingleScalarResult();
+    }
+
+    public function getLatestPost($categoryId = null)
+    {
+        $query = $this->createQueryBuilder('j')
+            ->where('j.expires_at > :date')
+            ->setParameter('date', date('Y-m-d H:i:s', time()))
+            ->andWhere('j.is_activated = :activated')
+            ->setParameter('activated', 1)
+            ->orderBy('j.expires_at', 'DESC')
+            ->setMaxResults(1);
+
+        if($categoryId) {
+            $query->andWhere('j.category = :category_id')
+                ->setParameter('category_id', $categoryId);
+        }
+
+        try{
+            $job = $query->getQuery()->getSingleResult();
+        } catch(\Doctrine\Orm\NoResultException $e){
+            $job = null;
+        }
+
+        return $job;
     }
 }

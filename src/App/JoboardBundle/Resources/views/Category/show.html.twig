@@ -12,7 +12,7 @@
 {% block content %}
     <div class="one-category">
         <div class="feed">
-            <a href="">Feed</a>
+            <a href="{{ path('AppJoboardBundle_category', { 'slug': category.slug, '_format': 'atom' }) }}">Feed</a>
         </div>
         <h1>{{ category.name }}</h1>
     </div>

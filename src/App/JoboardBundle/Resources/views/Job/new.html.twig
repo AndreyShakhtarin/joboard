@@ -1,0 +1,119 @@
+{% extends '::base.html.twig' %}
+
+{% form_theme form _self %}
+
+{% block form_errors %}
+    {% spaceless %}
+        {% if errors|length > 0 %}
+            <ul class="error_list">
+                {% for error in errors %}
+                    <li>{{ error.messageTemplate|trans(error.messageParameters, 'validators') }}</li>
+                {% endfor %}
+            </ul>
+        {% endif %}
+    {% endspaceless %}
+{% endblock form_errors %}
+
+{% block stylesheets %}
+    {{ parent() }}
+    <link rel="stylesheet" href="{{ asset('bundles/appjoboard/css/job.css') }}" type="text/css" media="all" />
+{% endblock %}
+
+{% block content %}
+    <h1>Добавление вакансии</h1>
+
+    {{ form_start(form) }}
+    <table id="job_form">
+        <tbody>
+        <tr>
+            <th>{{ form_label(form.category) }}</th>
+            <td>
+                {{ form_widget(form.category) }}
+                {{ form_errors(form.category) }}
+            </td>
+        </tr>
+        <tr>
+            <th>{{ form_label(form.type) }}</th>
+            <td>
+                {{ form_widget(form.type) }}
+                {{ form_errors(form.type) }}
+            </td>
+        </tr>
+        <tr>
+            <th>{{ form_label(form.company) }}</th>
+            <td>
+                {{ form_widget(form.company) }}
+                {{ form_errors(form.company) }}
+            </td>
+        </tr>
+        <tr>
+            <th>{{ form_label(form.file) }}</th>
+            <td>
+                {{ form_widget(form.file) }}
+                {{ form_errors(form.file) }}
+            </td>
+        </tr>
+        <tr>
+            <th>{{ form_label(form.url) }}</th>
+            <td>
+                {{ form_widget(form.url) }}
+                {{ form_errors(form.url) }}
+            </td>
+        </tr>
+        <tr>
+            <th>{{ form_label(form.position) }}</th>
+            <td>
+                {{ form_widget(form.position) }}
+                {{ form_errors(form.position) }}
+            </td>
+        </tr>
+        <tr>
+            <th>{{ form_label(form.location) }}</th>
+            <td>
+                {{ form_widget(form.location) }}
+                {{ form_errors(form.location) }}
+            </td>
+        </tr>
+        <tr>
+            <th>{{ form_label(form.description) }}</th>
+            <td>
+                {{ form_widget(form.description) }}
+                {{ form_errors(form.description) }}
+            </td>
+        </tr>
+        <tr>
+            <th>{{ form_label(form.how_to_apply) }}</th>
+            <td>
+                {{ form_widget(form.how_to_apply) }}
+                {{ form_errors(form.how_to_apply) }}
+            </td>
+        </tr>
+        <tr>
+            <th>{{ form_label(form.is_public) }}</th>
+            <td>
+                {{ form_widget(form.is_public) }}
+                {{ form_errors(form.is_public) }}
+                <br /> Может ли вакансия быть получена сайтами партнёрами.
+            </td>
+        </tr>
+        <tr>
+            <th>{{ form_label(form.email) }}</th>
+            <td>
+                {{ form_widget(form.email) }}
+                {{ form_errors(form.email) }}
+            </td>
+        </tr>
+        </tbody>
+        <tfoot>
+        <tr>
+            <td>
+                <input type="submit" value="Просмотр" />
+            </td>
+            <td>
+                <input type="submit" value="Отправить" />
+            </td>
+        </tr>
+        </tfoot>
+    </table>
+    {{ form_end(form) }}
+{% endblock %}

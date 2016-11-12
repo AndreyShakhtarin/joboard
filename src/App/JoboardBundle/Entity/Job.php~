@@ -2,8 +2,10 @@
 
 namespace App\JoboardBundle\Entity;
 
+use App\JoboardBundle\Slug\Joboard;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Validator\Constraints\DateTime;
+
 /**
  * Job
  */
@@ -94,6 +96,7 @@ class Job
      */
     private $category;
 
+    public $file;
 
     /**
      * Get id
@@ -397,8 +400,7 @@ class Job
      * Set expiresAt
      *
      * @param \DateTime
-     *
-     * @return Job
+     *     * @return Job
      */
     public function setExpiresAt()
     {
@@ -511,5 +513,130 @@ class Job
             $now = $this->getCreatedAt() ? $this->getCreatedAt()->format('U') : time();
             $this->expires_at = new \DateTime(date('Y-m-d H:i:s', $now + 86400 * 30));
         }
+    }
+
+    public function getCompanySlug()
+    {
+        return Joboard::slugify($this->getCompany());
+    }
+
+    public function getPositionSlug()
+    {
+        return Joboard::slugify($this->getPosition());
+    }
+
+    public function getLocationSlug()
+    {
+        return Joboard::slugify($this->getLocation());
+    }
+
+    public static function getTypes()
+    {
+        return [
+            'full-time' => 'Полный рабочий день',
+            'part-time' => 'Неполный рабочий день',
+            'freelance' => 'Фриланс'
+        ];
+    }
+
+    public static function getTypeValues()
+    {
+        return array_keys(self::getTypes());
+    }
+
+    protected function getUploadDir()
+    {
+        return 'uploads/jobs';
+    }
+
+    protected function getUploadRootDir()
+    {
+        return __DIR__.'/../../../../../../web/'.$this->getUploadDir();
+    }
+
+    public function getWebPath()
+    {
+        return null === $this->logo ? null : $this->getUploadDir().'/'.$this->logo;
+    }
+
+    public function getAbsolutePath()
+    {
+        return null === $this->logo ? null : $this->getUploadRootDir().'/'.$this->logo;
+    }
+
+
+    public function setFile($file)
+    {
+        $this->file = $file;
+        return $this;
+    }
+    public function getFile()
+    {
+        return $this->file;
+    }
+
+    /**
+     * @ORM\PrePersist
+     */
+    public function setTokenValue()
+    {
+        if(!$this->getToken()) {
+            $this->token = sha1($this->getEmail().rand(11111, 99999));
+        }
+    }
+
+    public function isExpired()
+    {
+        return $this->getDaysBeforeExpires() < 0;
+    }
+
+    public function expiresSoon()
+    {
+        return $this->getDaysBeforeExpires() < 5;
+    }
+
+    public function getDaysBeforeExpires()
+    {
+        return ceil(($this->getExpiresAt()->format('U') - time()) / 86400);
+    }
+
+    /**
+     * @ORM\PreUpdate
+     */
+    public function preUpload()
+    {
+        // Add your code here
+    }
+
+    /**
+     * @ORM\PostPersist
+     */
+    public function upload()
+    {
+        // Add your code here
+    }
+
+    /**
+     * @ORM\PostRemove
+     */
+    public function removeUpload()
+    {
+        // Add your code here
+    }
+
+    public function asArray($host)
+    {
+        return [
+            'category'     => $this->getCategory()->getName(),
+            'type'         => $this->getType(),
+            'company'      => $this->getCompany(),
+            'logo'         => $this->getLogo() ? 'http://' . $host . '/uploads/jobs/' . $this->getLogo() : null,
+            'url'          => $this->getUrl(),
+            'position'     => $this->getPosition(),
+            'location'     => $this->getLocation(),
+            'description'  => $this->getDescription(),
+            'how_to_apply' => $this->getHowToApply(),
+            'expires_at'   => $this->getCreatedAt()->format('Y-m-d H:i:s')
+        ];
     }
 }

@@ -10,4 +10,5 @@ parameters:
     mailer_user: null
     mailer_password: null
     secret: a33c4d1b82584ff8799232b064f2a6f773efb5e0
-
+    max_jobs_on_homepage: 10
+    max_jobs_on_category: 10

@@ -14,5 +14,6 @@ class JoboardTest extends WebTestCase
         $this->assertEquals('company', Joboard::slugify('company '));
         $this->assertEquals('n-a', Joboard::slugify(''));
         $this->assertEquals('n-a', Joboard::slugify(''));
+        $this->assertEquals('developpeur-web', Joboard::slugify('Développeur Web'));
     }
 }

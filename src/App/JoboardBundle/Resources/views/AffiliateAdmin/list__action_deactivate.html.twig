@@ -1,0 +1,6 @@
+{% if admin.isGranted('EDIT', object) and admin.hasRoute('deactivate') %}
+    <a href="{{ admin.generateObjectUrl('deactivate', object) }}" class="btn edit_link" title="{{ 'action_deactivate'|trans({}, 'SonataAdminBundle') }}">
+        <i class="icon-edit"></i>
+        {{ 'deactivate'|trans({}, 'SonataAdminBundle') }}
+    </a>
+{% endif %}

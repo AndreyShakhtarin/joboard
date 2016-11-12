@@ -2,10 +2,26 @@ app_joboard_app_job:
     resource: "@AppJoboardBundle/Resources/config/routing/job.yml"
     prefix:   /
 
+
 app_joboard_homepage:
-    path:     /hello{name}
-    defaults: { _controller: AppJoboardBundle:Default:index }
+    path:     /
+    defaults: { _controller: AppJoboardBundle:Job:index }
 
 AppJoboardBundle_category:
   path: /category/{slug}/{page}
   defaults: { _controller: AppJoboardBundle:Category:show, page:1 }
+
+app_job_new:
+    path:     /new
+    defaults: { _controller: "AppJoboardBundle:Job:new" }
+    methods:  [GET, POST]
+
+app_job_api:
+   path: /api/{token}/jobs.{_format}
+   defaults: {_controller: "AppJoboardBundle:Api:list"}
+   requirements:
+          _format: xml|json|yaml
+
+AppJoboardBundle_app_affiliate:
+   resource: "@AppJoboardBundle/Resources/config/routing/affiliate.yml"
+   prefix:   /affiliate

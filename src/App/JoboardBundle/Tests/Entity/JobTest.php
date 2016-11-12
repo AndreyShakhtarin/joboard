@@ -2,14 +2,15 @@
 /**
  * Created by PhpStorm.
  * User: andrey
- * Date: 08.02.16
- * Time: 15:22
+ * Date: 30.08.16
+ * Time: 14:40
  */
 
 namespace App\JoboardBundle\Entity;
 
+
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
-use App\JoboardBundle\Slug\Joboard;
+use App\JoboardBundle\Utils\Joboard as Joboard;
 use Symfony\Bundle\FrameworkBundle\Console\Application;
 use Symfony\Component\Console\Output\NullOutput;
 use Symfony\Component\Console\Input\ArrayInput;
@@ -17,7 +18,7 @@ use Doctrine\Bundle\DoctrineBundle\Command\DropDatabaseDoctrineCommand;
 use Doctrine\Bundle\DoctrineBundle\Command\CreateDatabaseDoctrineCommand;
 use Doctrine\Bundle\DoctrineBundle\Command\Proxy\CreateSchemaDoctrineCommand;
 
-class JobTest
+class JobTest extends WebTestCase
 {
     private $em;
     private $application;
@@ -29,6 +30,7 @@ class JobTest
 
         $this->application = new Application(static::$kernel);
 
+        // удаляет базу
         $command = new DropDatabaseDoctrineCommand();
         $this->application->add($command);
         $input = new ArrayInput(array(
@@ -37,11 +39,13 @@ class JobTest
         ));
         $command->run($input, new NullOutput());
 
-        $conection = $this->application->getKernel()->getContainer()->get('doctrine')->getConection();
-        if($conection->isConected()){
-            $conection->close();
+        // закрываем соединение
+        $connection = $this->application->getKernel()->getContainer()->get('doctrine')->getConnection();
+        if ($connection->isConnected()) {
+            $connection->close();
         }
 
+        // создаём базу
         $command = new CreateDatabaseDoctrineCommand();
         $this->application->add($command);
         $input = new ArrayInput(array(
@@ -49,31 +53,35 @@ class JobTest
         ));
         $command->run($input, new NullOutput());
 
-        $command = new CreateDatabaseDoctrineCommand();
+        // создаём структуру
+        $command = new CreateSchemaDoctrineCommand();
         $this->application->add($command);
         $input = new ArrayInput(array(
             'command' => 'doctrine:schema:create',
         ));
         $command->run($input, new NullOutput());
 
-        $this->em = static::$karnel->getContainer()
+        // получаем Entity Manager
+        $this->em = static::$kernel->getContainer()
             ->get('doctrine')
             ->getManager();
+
+        // загружаем фикстуры
         $client = static::createClient();
-        $loader = new \Symfony\Bridge\Doctrine\ContainerAwareEventManager($client->getContainer());
-        $loader->loadFromDirectory(static::$karnel->locateResource('@AppJoboardBundle/DataFixtures/ORM'));
+        $loader = new \Symfony\Bridge\Doctrine\DataFixtures\ContainerAwareLoader($client->getContainer());
+        $loader->loadFromDirectory(static::$kernel->locateResource('@AppJoboardBundle/DataFixtures/ORM'));
         $purger = new \Doctrine\Common\DataFixtures\Purger\ORMPurger($this->em);
         $executor = new \Doctrine\Common\DataFixtures\Executor\ORMExecutor($this->em, $purger);
-        $executor->execute($loader->getFixture());
+        $executor->execute($loader->getFixtures());
     }
 
     public function testGetCompanySlug()
     {
         $job = $this->em->createQuery('SELECT j FROM AppJoboardBundle:Job j')
-        ->setMaxResults(1)
-        ->getSingleResult();
+            ->setMaxResults(1)
+            ->getSingleResult();
 
-        $this->assertEquals($job->getCompanySlug(), Joboard::slugify($job->getCompony()));
+        $this->assertEquals($job->getCompanySlug(), Joboard::slugify($job->getCompany()));
     }
 
     public function testGetPositionSlug()
@@ -98,6 +106,7 @@ class JobTest
     {
         $job = new Job();
         $job->setExpiresAtValue();
+
         $this->assertEquals(time() + 86400 * 30, $job->getExpiresAt()->format('U'));
     }
 

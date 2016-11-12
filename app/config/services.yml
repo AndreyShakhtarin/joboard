@@ -4,6 +4,29 @@ parameters:
 #    parameter_name: value
 
 services:
-#    service_name:
-#        class: AppBundle\Directory\ClassName
-#        arguments: ["@another_service_name", "plain_value", "%parameter_name%"]
+   app.joboard.admin.category:
+       class: App\JoboardBundle\Admin\CategoryAdmin
+       tags:
+           - { name: sonata.admin, manager_type: orm, group: joboard, label: "Категории" }
+       arguments:
+           - ~
+           - App\JoboardBundle\Entity\Category
+           - 'AppJoboardBundle:CategoryAdmin'
+
+   app.joboard.admin.job:
+       class: App\JoboardBundle\Admin\JobAdmin
+       tags:
+           - { name: sonata.admin, manager_type: orm, group: joboard, label: "Вакансии" }
+       arguments:
+           - ~
+           - App\JoboardBundle\Entity\Job
+           - 'AppJoboardBundle:JobAdmin'
+
+   app.joboard.admin.affiliate:
+          class: App\JoboardBundle\Admin\AffiliateAdmin
+          tags:
+              - { name: sonata.admin, manager_type: orm, group: joboard, label: "Партнёры" }
+          arguments:
+              - ~
+              - App\JoboardBundle\Entity\Affiliate
+              - AppJoboardBundle:AffiliateAdmin

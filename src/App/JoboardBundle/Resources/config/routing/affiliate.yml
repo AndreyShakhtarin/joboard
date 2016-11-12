@@ -1,0 +1,12 @@
+app_affiliate_new:
+   path:  /new
+   defaults: { _controller: "AppJoboardBundle:Affiliate:new" }
+
+app_affiliate_create:
+   path: /create
+   defaults: { _controller: "AppJoboardBundle:Affiliate:create" }
+   requirements: { _method: post }
+
+app_affiliate_wait:
+   path: /wait
+   defaults: { _controller: "AppJoboardBundle:Affiliate:wait" }

@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/RSS">
+    <title>Joboard</title>
+    <subtitle>Последние вакансии</subtitle>
+    <link href="{{ url('app_job_index', {'_format': 'RSS'}) }}" rel="self"/>
+    <entery>
+        <summary type=""xhtml>
+            <div xmlns="http://www.w3.org/1999/xhtml">
+                <h2>
+                    <a href=" {{ url('app_job_index', {'_format': 'html'}) }}">Return Main</a>
+                </h2>
+            </div>
+        </summary>
+    </entery>
+    <updated>{{ lastUpdated }}</updated>
+    <author><name>Joboard</name></author>
+    <id>{{ feedId }}</id>
+    <arc></arc>
+
+    {% for category in categories %}
+        {% for entity in category.activejobs %}
+            <entry>
+                <title>{{ entity.position }} ({{ entity.location }})</title>
+                <id>{{ entity.id }}</id>
+                <updated>{{ entity.createdAt.format(constant('DATE_ATOM')) }}</updated>
+                <summary type="xhtml">
+                    <link rel="stylesheet" href="{{ asset('bundles/appjoboard/responsee.css') }}">
+                    <div xmlns="http://www.w3.org/1999/xhtml">
+                        {% if entity.logo %}
+                            <div class="l-1">
+                                <a href="{{ entity.url }}">
+                                    <img src="http://{{ app.request.host }}/uploads/jobs/{{ entity.logo }}" alt="{{ entity.company }} logo" />
+                                </a>
+                            </div>
+                        {% endif %}
+                        <div class="inline">
+                            {{ entity.description|nl2br }}
+                            <a class="m-1" href="{{ url('app_job_show', { 'id': entity.id, 'company': entity.companyslug, 'location': entity.locationslug, 'position': entity.positionslug }) }}" >Просмотреть</a>                        </div>
+                        <h4></h4>
+                        <p>{{ entity.howtoapply }}</p>
+                    </div>
+                </summary>
+                <author><name> Компания: {{ entity.company }}</name></author>
+            </entry>
+        {% endfor %}
+    {% endfor %}
+</feed>

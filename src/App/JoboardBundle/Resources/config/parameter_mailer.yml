@@ -1,0 +1,7 @@
+parameters:
+    mailer_user:  joboard95@gmail.com
+    mailer_password:  FelixCat1988
+    mailer_host: smtp.gmail.com
+    mailer_port: 465
+    mailer_encryption: ssl
+    mailer_auth_mode:  login

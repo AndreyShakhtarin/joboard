@@ -11,10 +11,11 @@ namespace App\JoboardBundle\Controller;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use App\JoboardBundle\Entity\Category;
 use App\JoboardBundle\Repository\CategoryRepository;
+use Symfony\Component\HttpFoundation\Request;
 
 class CategoryController extends Controller
 {
-    public function showAction($slug, $page)
+    public function showAction(Request $request, $slug, $page)
     {
         $em = $this->getDoctrine()->getManager();
 
@@ -34,13 +35,26 @@ class CategoryController extends Controller
 
         $category->setActiveJobs($activeJobs);
 
-        return $this->render('AppJoboardBundle:Category:show.html.twig', array(
+        $latestJob = $em->getRepository('AppJoboardBundle:Job')->getLatestPost($category->getId());
+
+        if($latestJob) {
+            $lastUpdated = $latestJob->getCreatedAt()->format(DATE_ATOM);
+        } else {
+            $lastUpdated = new \DateTime();
+            $lastUpdated = $lastUpdated->format(DATE_ATOM);
+        }
+
+        $format = $request->getRequestFormat();
+
+        return $this->render('AppJoboardBundle:Category:show.'.$format.'.twig', array(
             'category'     => $category,
             'lastPage'     => $lastPage,
             'previousPage' => $previousPage,
             'currentPage'  => $page,
             'nextPage'     => $nextPage,
-            'totalJobs'    => $totalJobs
+            'totalJobs'    => $totalJobs,
+            'feedId'       => sha1($this->generateUrl('AppJoboardBundle_category', ['slug' => $category->getSlug(), 'format' => 'atom'], true)),
+            'lastUpdated' => $lastUpdated
         ));
     }
 }

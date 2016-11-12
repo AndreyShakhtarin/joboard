@@ -8,14 +8,13 @@
 
 namespace App\JoboardBundle\Tests\Repository;
 
-use Symfony\Bundle\FrameworkBundle\Tests\Functional\WebTestCase;
+use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
 use Symfony\Bundle\FrameworkBundle\Console\Application;
 use Symfony\Component\Console\Output\NullOutput;
 use Symfony\Component\Console\Input\ArrayInput;
 use Doctrine\Bundle\DoctrineBundle\Command\DropDatabaseDoctrineCommand;
 use Doctrine\Bundle\DoctrineBundle\Command\CreateDatabaseDoctrineCommand;
 use Doctrine\Bundle\DoctrineBundle\Command\Proxy\CreateSchemaDoctrineCommand;
-
 
 class CategoryRepositoryTest extends WebTestCase
 {
@@ -85,7 +84,6 @@ class CategoryRepositoryTest extends WebTestCase
         // Этот тест проверяет количество категорий имеющих активные вакансии,
         // сравнивается значение из репозитория со значением из базы
         $this->assertEquals(count($categoriesRep), count($categoriesDb));
-
     }
 
     protected function tearDown()

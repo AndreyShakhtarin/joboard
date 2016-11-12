@@ -1,0 +1,35 @@
+App\JoboardBandle\Entity\Job:
+    properties:
+        company:
+            - NotBlank: ~
+        position:
+            - NotBlank: ~
+        location:
+           - NotBlank: ~
+        description:
+            - NotBlank: ~
+        how_to_apply:
+            - NotBlank: ~
+        email:
+            - NotBlank: ~
+            - Email: ~
+        url:
+            - Url: ~
+        email:
+            - NotBlank: ~
+            - Email: ~
+        file:
+            - Image: ~
+        type:
+            - NotBlank: ~
+            - choice: { callback: getTypeValues }
+
+App\JoboardBundle\Entity\Affiliate:
+    constraints:
+        - Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity: email
+    properties:
+        url:
+            - Url: ~
+        email:
+            - NotBlank: ~
+            - Email: ~

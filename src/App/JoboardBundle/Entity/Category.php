@@ -2,7 +2,7 @@
 
 namespace App\JoboardBundle\Entity;
 
-use App\JoboardBundle\Slug;
+use App\JoboardBundle\Slug\Joboard;
 
 /**
  * Category
@@ -187,7 +187,7 @@ class Category
      */
     public function setSlug()
     {
-        $this->slug = Slug\Joboard::slugify($this->getName());
+        $this->slug = Joboard::slugify($this->getName());
 
         return $this;
     }
@@ -197,9 +197,9 @@ class Category
      *
      * @return string
      */
-    public function getSlug($slug)
+    public function getSlug()
     {
-        return $this->slug = $slug;
+        return Joboard::slugify($this->getName());
     }
 
     /**

@@ -2,9 +2,13 @@
 
 namespace App\JoboardBundle\Form;
 
+use App\JoboardBundle\Entity\Job;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
+use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
+use Symfony\Component\Form\Extension\Core\Type\FileType;
+use Symfony\Component\OptionsResolver\OptionsResolverInterface;
 
 class JobType extends AbstractType
 {
@@ -15,29 +19,37 @@ class JobType extends AbstractType
     public function buildForm(FormBuilderInterface $builder, array $options)
     {
         $builder
-            ->add('type')
+            ->add('type', ChoiceType::class, [
+                'choices' => Job::getTypes(),
+            ])
             ->add('company')
-            ->add('logo')
+            ->add('file', FileType::class,  array('label' => 'Логотим Компании'))
             ->add('url')
             ->add('position')
             ->add('location')
             ->add('description')
             ->add('how_to_apply')
-            ->add('token')
             ->add('is_public')
-            ->add('is_activated')
             ->add('email')
             ->add('category')
         ;
     }
-    
+
     /**
-     * @param OptionsResolver $resolver
+     * @param OptionsResolverInterface $resolver
      */
-    public function configureOptions(OptionsResolver $resolver)
+    public function setDefaultOptions(OptionsResolverInterface $resolver)
     {
         $resolver->setDefaults(array(
             'data_class' => 'App\JoboardBundle\Entity\Job'
         ));
+    }
+
+    /**
+     * @return string
+     */
+    public function getName()
+    {
+        return 'app_joboard_job';
     }
 }

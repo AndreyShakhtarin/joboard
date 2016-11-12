@@ -5,3 +5,22 @@ app_joboard:
 app:
     resource: "@AppBundle/Controller/"
     type:     annotation
+
+admin:
+   resource: '@SonataAdminBundle/Resources/config/routing/sonata_admin.xml'
+   prefix: /admin
+
+_sonata_admin:
+   resource: .
+   type: sonata_admin
+   prefix: /admin
+
+login:
+    path:   /login
+    defaults:  { _controller: AppJoboardBundle:Default:login }
+
+login_check:
+    path:   /login_check
+
+logout:
+   path: /logout

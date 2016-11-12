@@ -4,9 +4,16 @@ namespace App\JoboardBundle\Controller;
 
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
+use Symfony\Component\Form\Extension\Core\Type\HiddenType;
+use Symfony\Component\HttpFoundation\File\UploadedFile;
+use Symfony\Component\HttpFoundation\File\File;
+
+
 
 use App\JoboardBundle\Entity\Job;
 use App\JoboardBundle\Form\JobType;
+use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
+use Sensio\Bundle\FrameworkExtraBundle\Configuration\Template;
 
 /**
  * Job controller.
@@ -15,10 +22,10 @@ use App\JoboardBundle\Form\JobType;
 class JobController extends Controller
 {
     /**
-     * Lists all Job entities.
+     *
      *
      */
-    public function indexAction()
+    public function indexAction(Request $request)
     {
         $em = $this->getDoctrine()->getManager();
 
@@ -38,9 +45,27 @@ class JobController extends Controller
             }
         }
 
-        return $this->render('AppJoboardBundle:Job:index.html.twig', array(
-            'categories' => $categories
-        ));
+        $latestJob = $em->getRepository('AppJoboardBundle:Job')->getLatestPost();
+
+        if($latestJob) {
+            $lastUpdated = $latestJob->getCreatedAt()->format(DATE_ATOM);
+        } else {
+            $lastUpdated = new \DateTime();
+            $lastUpdated = $lastUpdated->format(DATE_ATOM);
+        }
+
+        $_format = $request->query->getAlnum('_format');
+        if(!$_format){
+            $_format = 'html';
+        }
+
+        return $this->render(
+            'AppJoboardBundle:Job:index.'.$_format.'.twig',
+            [
+                'categories'  => $categories,
+                'lastUpdated' => $lastUpdated,
+                'feedId'      => sha1($this->generateUrl('app_job_index', ['_format'=> 'atom'], true))
+            ]);
     }
 
 
@@ -50,34 +75,69 @@ class JobController extends Controller
      */
     public function newAction(Request $request)
     {
-        $job = new Job();
-        $form = $this->createForm('App\JoboardBundle\Form\JobType', $job);
+        $entity = new Job();
+        $form = $this->createForm(JobType::class, $entity);
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
+            $entity->file->move(__DIR__.'/../../../../web/uploads/jobs', $entity->file->getClientOriginalName());
+            $entity->setLogo($entity->file->getClientOriginalName());
             $em = $this->getDoctrine()->getManager();
-            $em->persist($job);
+            $em->persist($entity);
             $em->flush();
 
-            return $this->redirectToRoute('app_job_show', array('id' => $job->getId()));
+            return $this->redirectToRoute('app_job_show', array(
+                'id' => $entity->getId(),
+                "company" => $entity->getCompany(),
+                "position" => $entity->getPosition(),
+                "location" => $entity->getLocation(),
+                'token' => $entity->getToken()
+            ));
+
         }
 
-        return $this->render('job/new.html.twig', array(
-            'job' => $job,
+        return $this->render('AppJoboardBundle:Job:new.html.twig', array(
+            'entity' => $entity,
             'form' => $form->createView(),
         ));
     }
+
+
 
     /**
      * Finds and displays a Job entity.
      *
      */
-    public function showAction(Job $job)
+    public function showAction($id)
     {
+        $em = $this->getDoctrine()->getManager();
+
+        $entity = $em->getRepository('AppJoboardBundle:Job')->getActiveJob($id);
+        if(!$entity)
+        {
+            throw $this->createNotFoundException('Unable to find Job entity.');
+        }
+        $session = $this->get('session');
+        $jobs = $session->get('job_history', []);
+        $job = [
+            'id' => $entity->getId(),
+            'position' =>$entity->getPosition(),
+            'company' => $entity->getCompany(),
+            'companyslug' => $entity->getCompanySlug(),
+            'locationslug' => $entity->getLocationSlug(),
+            'positionslug' => $entity->getPositionSlug()
+        ];
+        if (!in_array($job, $jobs)) {
+            // добавить текущую вакансию в начало массива
+            array_unshift($jobs, $job);
+
+            // обновить истории посещений
+            $session->set('job_history', array_slice($jobs, 0, 3));
+        }
         $deleteForm = $this->createDeleteForm($job);
         //$job = $em->getRepository('AppJoboardBundle:Job')->getActiveJob($id);
-        return $this->render('job/show.html.twig', array(
-            'job' => $job,
+        return $this->render('AppJoboardBundle:Job:show.html.twig', array(
+            'entity' => $entity,
             'delete_form' => $deleteForm->createView(),
         ));
     }
@@ -86,23 +146,55 @@ class JobController extends Controller
      * Displays a form to edit an existing Job entity.
      *
      */
-    public function editAction(Request $request, Job $job)
+    public function editAction($token)
     {
-        $deleteForm = $this->createDeleteForm($job);
-        $editForm = $this->createForm('App\JoboardBundle\Form\JobType', $job);
-        $editForm->handleRequest($request);
+        $em = $this->getDoctrine()->getManager();
 
-        if ($editForm->isSubmitted() && $editForm->isValid()) {
-            $em = $this->getDoctrine()->getManager();
-            $em->persist($job);
-            $em->flush();
+        $entity = $em->getRepository('AppJoboardBundle:Job')->findOneByToken($token);
 
-            return $this->redirectToRoute('app_job_edit', array('id' => $job->getId()));
+        if (!$entity) {
+            throw $this->createNotFoundException('Такой вакансии не существует.');
         }
 
-        return $this->render('job/edit.html.twig', array(
-            'job' => $job,
-            'edit_form' => $editForm->createView(),
+        $editForm = $this->createForm(JobType::class, $entity, [
+            'action' => $this->generateUrl('app_job_update', ['token' => $token]),
+            'method' => 'PUT',
+        ]);
+        $deleteForm = $this->createDeleteForm($token);
+
+        return $this->render('AppJoboardBundle:Job:edit.html.twig', array(
+            'entity'      => $entity,
+            'edit_form'   => $editForm->createView(),
+            'delete_form' => $deleteForm->createView(),
+        ));
+    }
+
+    public function updateAction(Request $request, $token)
+    {
+        $em = $this->getDoctrine()->getManager();
+        $entity = $em->getRepository('AppJoboardBundle:Job')->findOneByToken($token);
+
+        if (!$entity) {
+            throw $this->createNotFoundException('Такой вакансии не существует.');
+        }
+
+        $editForm   = $this->createForm(JobType::class, $entity, [
+            'action' => $this->generateUrl('app_job_update', ['token' => $token]),
+            'method' => 'PUT'
+        ]);
+        $deleteForm = $this->createDeleteForm($token);
+        $editForm->handleRequest($request);
+
+        if ($editForm->isValid()) {
+            $em->persist($entity);
+            $em->flush();
+
+            return $this->redirect($this->generateUrl('app_job_edit', array('token' => $token)));
+        }
+
+        return $this->render('AppJoboardBundle:Job:edit.html.twig', array(
+            'entity'      => $entity,
+            'edit_form'   => $editForm->createView(),
             'delete_form' => $deleteForm->createView(),
         ));
     }
@@ -111,18 +203,24 @@ class JobController extends Controller
      * Deletes a Job entity.
      *
      */
-    public function deleteAction(Request $request, Job $job)
+    public function deleteAction(Request $request, $token)
     {
-        $form = $this->createDeleteForm($job);
+        $form = $this->createDeleteForm($token);
         $form->handleRequest($request);
 
-        if ($form->isSubmitted() && $form->isValid()) {
+        if ($form->isValid()) {
             $em = $this->getDoctrine()->getManager();
-            $em->remove($job);
+            $entity = $em->getRepository('AppJoboardBundle:Job')->findOneByToken($token);
+
+            if (!$entity) {
+                throw $this->createNotFoundException('Такой вакансии не существует.');
+            }
+
+            $em->remove($entity);
             $em->flush();
         }
 
-        return $this->redirectToRoute('app_job_index');
+        return $this->redirect($this->generateUrl('app_job'));
     }
 
     /**
@@ -132,12 +230,29 @@ class JobController extends Controller
      *
      * @return \Symfony\Component\Form\Form The form
      */
-    private function createDeleteForm(Job $job)
+    private function createDeleteForm($token)
     {
-        return $this->createFormBuilder()
-            ->setAction($this->generateUrl('app_job_delete', array('id' => $job->getId())))
-            ->setMethod('DELETE')
+        return $this->createFormBuilder(['token' => $token])
+            ->add('token',HiddenType::class, ['csrf_token_id' => $token])
             ->getForm()
-        ;
+            ;
+    }
+
+    public function previewAction($token)
+    {
+        $em = $this->getDoctrine()->getManager();
+
+        $entity = $em->getRepository('AppJoboardBundle:Job')->findOneByToken($token);
+
+        if (!$entity) {
+            throw $this->createNotFoundException('Такой вакансии не существует.');
+        }
+
+        $deleteForm = $this->createDeleteForm($entity->getId());
+
+        return $this->render('AppJoboardBundle:Job:show.html.twig', array(
+            'entity'      => $entity,
+            'delete_form' => $deleteForm->createView(),
+        ));
     }
 }
